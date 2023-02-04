@@ -1,0 +1,165 @@
+<html>
+  <head>
+    <title>Realtime Value Display</title>
+    <style>
+      body {
+        background: radial-gradient(#584b89, #1d192b);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      #text-center {
+        color: white;
+        position: absolute;
+        font-weight: bold;
+        font-size: 50px;
+        left: 14em;
+        padding-bottom: 15em; 
+        font-weight: bold;
+      }
+      #weapon-text {
+        color: white;
+        position: absolute;
+        font-weight: bold;
+        font-size: 50px;
+        padding-bottom: 10em; 
+        font-weight: bold;
+      }
+      #value {
+        color: white;
+        padding-left: 10px;
+        font-weight: bold;
+        font-size: 48px;
+      }
+      #sos-button {
+        position: absolute;
+        top: 10;
+        right: 10;
+        width: 6em;
+        height: 3em;
+        background: radial-gradient(rgb(30, 11, 11),rgb(101, 23, 23), #fd3030);
+        border-radius: 20px;
+        color: white;
+        font-size: 2em;
+        font-weight: bold;
+      }
+      #viewbtn {
+        position: absolute;
+        top: 12em;
+        left: 5em;
+        width: 11em;
+        height: 3em;
+        background: linear-gradient(#5df542, #42e3f5);
+        font-size: 1.5em;
+        color: white;
+        font-weight: bold;
+        border-radius: 20px;
+      }
+      img {
+        display: inline-block;
+        position: absolute;
+        bottom: 3em;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50em;
+        height: 28.125em;
+        border-radius: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="text-center">Motion was
+      <span id="value">
+        {valueRef ? "detected!!" : "not detected"}
+      </span>
+    </div>
+    <div id="weapon-text">A Weapon was
+      <span id="weapon_value">
+        {weaponRef ? "detected!!" : "not detected"}
+      </span>
+    </div>
+    <button id="sos-button">SOS</button>
+    <input type="button" value ="view the latest image" id="viewbtn" onclick="showimage();">
+    <img src="image" id="image" width="1600px" height="900px"/> 
+  
+    <!-- Load the Firebase JavaScript library -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-storage.js"></script>
+
+    <!-- Initialize Firebase -->
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyCYSrmGY-LqsSsyyjehJXVlX10VQVuEKLs",
+        authDomain: "home-security-7f99a.firebaseapp.com",
+        projectId: "home-security-7f99a",
+        databaseURL: "https://home-security-7f99a-default-rtdb.firebaseio.com",
+        storageBucket: "home-security-7f99a.appspot.com",
+        messagingSenderId: "674787418238",
+        appId: "1:674787418238:web:fe48bda8bab8f443e7382f"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Get a reference to the database
+      var database = firebase.database();
+
+      // Get a reference to the "value" node in the database
+      var valueRef = database.ref("Motion");
+
+      // Set up a listener to update the "value" element whenever the value in the database changes
+      valueRef.on("value", function(snapshot) {
+        if (snapshot.val() == true) {
+          document.getElementById("value").innerHTML = "detected!!";
+          document.getElementById("value").style.color = "yellow";
+          document.getElementById("text-center").style.color = "yellow";
+        } else {
+          document.getElementById("value").innerHTML = "not detected"
+        }
+      });
+      document.getElementById("value").innerHTML = valueRef ? "detected!!" : "not detected";
+
+      // Get a reference to the "sos" node in the database
+      var sosRef = database.ref("SOS");
+
+      // Set up a listener to update the "sos" value when the button is clicked
+      document.getElementById("sos-button").addEventListener("click", function() {
+        sosRef.once("value", function(snapshot) {
+          let newVal = !snapshot.val();
+          sosRef.set(newVal)
+        })      
+      });
+
+      var weaponRef = database.ref("WeaponDetected");
+
+      // Set up a listener to update the "weapon" element whenever the weapon in the database changes
+      weaponRef.on("value", function(snapshot) {
+        if (snapshot.val() == true) {
+          document.getElementById("weapon_value").innerHTML = "detected!!";
+          document.getElementById("weapon_value").style.color = "red";
+          document.getElementById("weapon-text").style.color = "red";
+        } else {
+          document.getElementById("weapon_value").innerHTML = "not detected";
+          document.getElementById("weapon_value").style.color = "green";
+          document.getElementById("weapon-text").style.color = "green";
+        }
+      });
+      document.getElementById("weapon_value").innerHTML = weaponRef ? "detected!!" : "not detected";
+
+
+      function showimage() {
+          var storageRef = firebase.storage().ref();
+          var spaceRef = storageRef.child('img.png');
+          storageRef.child('img.png').getDownloadURL().then(function(url) {
+              var image = url;
+              alert(url);
+              document.querySelector('img').src = image;
+              document.getElementById('img').style.display = block;
+          }).catch(function(error) {});   
+      }
+    </script>
+  </body>
+</html>
