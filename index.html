@@ -23,7 +23,7 @@
         position: absolute;
         font-weight: bold;
         font-size: 50px;
-        padding-bottom: 10em; 
+        padding-bottom: 11em; 
         font-weight: bold;
       }
       #value {
@@ -46,8 +46,8 @@
       }
       #viewbtn {
         position: absolute;
-        top: 10em;
-        left: 4em;
+        top: 1em;
+        left: 2em;
         width: 11em;
         height: 3em;
         background: linear-gradient(#5df542, #42e3f5);
@@ -66,6 +66,12 @@
         height: 28.125em;
         border-radius: 30px;
       }
+      #image-updated-time {
+        position: absolute;
+        color:rgb(85, 255, 252);
+        font-size: 1.5em;
+        bottom: 22em;
+      }
     </style>
   </head>
   <body>
@@ -81,6 +87,7 @@
     </div>
     <button id="sos-button">SOS</button>
     <input type="button" value ="view the latest image" id="viewbtn" onclick="showimage();">
+    <div id="image-updated-time"></div>
     <img src="image" id="image" width="1600px" height="900px"/> 
   
     <!-- Load the Firebase JavaScript library -->
@@ -117,8 +124,6 @@
           document.getElementById("text-center").style.color = "yellow";
         } else {
           document.getElementById("value").innerHTML = "not detected"
-          document.getElementById("value").style.color = "white";
-          document.getElementById("text-center").style.color = "white";
         }
       });
       document.getElementById("value").innerHTML = valueRef ? "detected!!" : "not detected";
@@ -149,6 +154,19 @@
         }
       });
       document.getElementById("weapon_value").innerHTML = weaponRef ? "detected!!" : "not detected";
+      var storageRef = firebase.storage().ref();
+      var spaceRef = storageRef.child('img.png');
+      spaceRef.getMetadata().then(function(metadata) {
+        var updatedTime = metadata.updated;
+        // Format the timestamp to display date and time
+        var date = new Date(updatedTime);
+        var dateString = date.toLocaleString();
+
+        // Display the date and time on the HTML page
+        document.getElementById("image-updated-time").innerHTML = "Image last updated on: " + dateString;
+        }).catch(function(error) {
+          console.error("Error getting metadata:", error);
+        });
 
 
       function showimage() {
@@ -156,7 +174,6 @@
           var spaceRef = storageRef.child('img.png');
           storageRef.child('img.png').getDownloadURL().then(function(url) {
               var image = url;
-              alert(url);
               document.querySelector('img').src = image;
               document.getElementById('img').style.display = block;
           }).catch(function(error) {});   
