@@ -154,9 +154,16 @@
         }
       });
       document.getElementById("weapon_value").innerHTML = weaponRef ? "detected!!" : "not detected";
-      var storageRef = firebase.storage().ref();
-      var spaceRef = storageRef.child('img.png');
-      spaceRef.getMetadata().then(function(metadata) {
+
+      function showimage() {
+          var storageRef = firebase.storage().ref();
+          var spaceRef = storageRef.child('img.png');
+          storageRef.child('img.png').getDownloadURL().then(function(url) {
+              var image = url;
+              document.querySelector('img').src = image;
+              document.getElementById('img').style.display = block;
+          }).catch(function(error) {});   
+        spaceRef.getMetadata().then(function(metadata) {
         var updatedTime = metadata.updated;
         // Format the timestamp to display date and time
         var date = new Date(updatedTime);
@@ -167,16 +174,6 @@
         }).catch(function(error) {
           console.error("Error getting metadata:", error);
         });
-
-
-      function showimage() {
-          var storageRef = firebase.storage().ref();
-          var spaceRef = storageRef.child('img.png');
-          storageRef.child('img.png').getDownloadURL().then(function(url) {
-              var image = url;
-              document.querySelector('img').src = image;
-              document.getElementById('img').style.display = block;
-          }).catch(function(error) {});   
       }
     </script>
   </body>
